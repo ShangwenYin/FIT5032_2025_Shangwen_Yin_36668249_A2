@@ -1,0 +1,107 @@
+/* MindWell Connect — Global Styles */
+
+:root {
+  --mw-primary: #1a73e8;
+  --mw-primary-dark: #1557b0;
+  --mw-secondary: #34a853;
+  --mw-warm: #f9ab00;
+  --mw-danger: #ea4335;
+  --mw-bg: #f8f9fa;
+  --mw-text: #202124;
+  --mw-muted: #5f6368;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--mw-text);
+  background: var(--mw-bg);
+}
+
+/* Navbar */
+.navbar-brand { font-weight: 700; color: var(--mw-primary) !important; font-size: 1.25rem; }
+.brand-icon {
+  display: inline-block; width: 30px; height: 30px; line-height: 30px;
+  text-align: center; background: var(--mw-primary); color: #fff;
+  border-radius: 8px; margin-right: 8px; font-size: 0.85rem;
+}
+
+/* Crisis banner */
+.crisis-banner {
+  background: #fce8e6; border-bottom: 2px solid var(--mw-danger);
+  padding: 6px 0; text-align: center; font-size: 0.85rem; font-weight: 500;
+}
+.crisis-banner a { color: var(--mw-danger); font-weight: 700; }
+
+/* Hero */
+.hero-section {
+  background: linear-gradient(135deg, #1a73e8, #4285f4 50%, #8ab4f8);
+  color: #fff; padding: 70px 0 50px;
+}
+
+/* Cards */
+.feature-card, .resource-card, .stat-card, .auth-card {
+  background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.feature-card:hover, .resource-card:hover {
+  transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+.feature-card { padding: 2rem; text-align: center; }
+.resource-card { overflow: hidden; }
+.resource-card .card-img-top { height: 160px; object-fit: cover; }
+
+/* Rating stars */
+.rating-stars { display: inline-flex; gap: 1px; }
+.rating-stars .star { font-size: 1.2rem; color: #dadce0; cursor: pointer; transition: color 0.15s; }
+.rating-stars .star.filled { color: #f9ab00; }
+.rating-stars.readonly .star { cursor: default; }
+
+/* Badges */
+.resource-type-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; font-weight: 500; }
+.badge-article { background: #e8f0fe; color: #1967d2; }
+.badge-video { background: #fce8e6; color: #c5221f; }
+.badge-worksheet { background: #e6f4ea; color: #137333; }
+
+/* Auth */
+.auth-container { max-width: 460px; margin: 2rem auto; }
+.auth-card { padding: 2.5rem; }
+
+/* Dashboard */
+.stat-card { padding: 1.25rem; text-align: center; }
+.stat-value { font-size: 1.8rem; font-weight: 700; color: var(--mw-primary); }
+.stat-label { color: var(--mw-muted); font-size: 0.85rem; }
+
+/* Footer */
+.app-footer { background: #fff; border-top: 1px solid #dadce0; padding: 1.5rem 0; margin-top: auto; color: var(--mw-muted); }
+
+/* Toast */
+.toast-container { position: fixed; top: 80px; right: 20px; z-index: 1060; }
+.custom-toast {
+  background: #fff; border-radius: 10px; padding: 0.75rem 1.25rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15); margin-bottom: 0.5rem;
+  display: flex; align-items: center; gap: 0.5rem; min-width: 260px;
+  animation: slideIn 0.3s ease;
+}
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.toast-success { border-left: 4px solid var(--mw-secondary); }
+.toast-error { border-left: 4px solid var(--mw-danger); }
+.toast-info { border-left: 4px solid var(--mw-primary); }
+
+/* Buttons */
+.btn-mw {
+  background: var(--mw-primary); border-color: var(--mw-primary);
+  color: #fff; font-weight: 500; border-radius: 8px;
+}
+.btn-mw:hover { background: var(--mw-primary-dark); border-color: var(--mw-primary-dark); color: #fff; }
+.btn-mw-outline {
+  border: 2px solid var(--mw-primary); color: var(--mw-primary);
+  font-weight: 500; border-radius: 8px;
+}
+.btn-mw-outline:hover { background: var(--mw-primary); color: #fff; }
+
+/* Responsive (BR A.2) */
+@media (max-width: 768px) {
+  .hero-section { padding: 40px 0 30px; }
+  .hero-section h1 { font-size: 1.8rem; }
+  .auth-card { padding: 1.5rem; }
+}
