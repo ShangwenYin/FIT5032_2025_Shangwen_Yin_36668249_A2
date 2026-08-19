@@ -1,7 +1,9 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { getUsers, setCurrentUser, isValidEmail } from '@/data'
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { auth } from '@/firebase'
+import { getUsers, saveUsers, setCurrentUser, isValidEmail } from '@/data'
 
 const router = useRouter()
 const route = useRoute()
@@ -25,9 +27,7 @@ function validate() {
   errors.email = ''
   errors.password = ''
 
-  // BR B.1: Required field validation
   if (!form.email) { errors.email = 'Email is required.'; valid = false }
-  // BR B.1: Email format validation
   else if (!isValidEmail(form.email)) { errors.email = 'Please enter a valid email address.'; valid = false }
 
   if (!form.password) { errors.password = 'Password is required.'; valid = false }
@@ -35,29 +35,73 @@ function validate() {
   return valid
 }
 
-function handleLogin() {
+// Map Firebase Auth error codes to friendly messages.
+function authError(code) {
+  switch (code) {
+    case 'auth/invalid-credential':
+    case 'auth/user-not-found':
+    case 'auth/wrong-password':
+      return 'Invalid email or password.'
+    case 'auth/invalid-email':
+      return 'Please enter a valid email address.'
+    case 'auth/too-many-requests':
+      return 'Too many attempts. Please try again later.'
+    default:
+      return code || 'Authentication failed.'
+  }
+}
+
+// Sync a Firebase Auth user to the localStorage profile (creates a client
+// profile automatically for first-time Google sign-ins).
+function syncLocalProfile(email, displayName) {
+  const users = getUsers()
+  let profile = users.find(u => u.email.toLowerCase() === email.toLowerCase())
+  if (!profile) {
+    profile = {
+      id: users.length ? Math.max(...users.map(u => u.id)) + 1 : 1,
+      name: displayName || email.split('@')[0],
+      email: email.toLowerCase(),
+      role: 'client',
+      savedResources: [],
+      ratings: {}
+    }
+    users.push(profile)
+    saveUsers(users)
+  }
+  // eslint-disable-next-line no-unused-vars
+  const { password: _pw, ...safeUser } = profile
+  setCurrentUser(safeUser)
+}
+
+async function handleLogin() {
   if (!validate()) return
   submitting.value = true
+  try {
+    const cred = await signInWithEmailAndPassword(auth, form.email, form.password)
+    syncLocalProfile(cred.user.email, cred.user.displayName)
+    toast('Login successful! Welcome back.', 'success')
+    const redirect = route.query.redirect || '/dashboard'
+    setTimeout(() => router.push(redirect), 500)
+  } catch (e) {
+    const msg = authError(e.code)
+    errors.email = msg
+    toast('Login failed: ' + msg, 'error')
+  }
+  submitting.value = false
+}
 
-  setTimeout(() => {
-    const users = getUsers()
-    const user = users.find(u =>
-      u.email.toLowerCase() === form.email.toLowerCase() && u.password === form.password
-    )
-
-    if (user) {
-      // eslint-disable-next-line no-unused-vars
-      const { password: _pw, ...safeUser } = user
-      setCurrentUser(safeUser)
-      toast('Login successful! Welcome back, ' + safeUser.name + '.', 'success')
-      const redirect = route.query.redirect || '/dashboard'
-      setTimeout(() => router.push(redirect), 500)
-    } else {
-      errors.email = 'Invalid email or password.'
-      toast('Login failed. Please check your credentials.', 'error')
-    }
-    submitting.value = false
-  }, 500)
+async function handleGoogle() {
+  submitting.value = true
+  try {
+    const provider = new GoogleAuthProvider()
+    const cred = await signInWithPopup(auth, provider)
+    syncLocalProfile(cred.user.email, cred.user.displayName)
+    toast('Login successful! Welcome back.', 'success')
+    setTimeout(() => router.push('/dashboard'), 500)
+  } catch (e) {
+    toast('Google login failed: ' + authError(e.code), 'error')
+  }
+  submitting.value = false
 }
 </script>
 
@@ -148,6 +192,17 @@ function handleLogin() {
         </button>
       </form>
 
+      <div class="text-center mb-3">
+        <span class="text-muted small">or</span>
+      </div>
+      <button
+        class="btn btn-outline-dark w-100 py-2 mb-3"
+        :disabled="submitting"
+        @click="handleGoogle"
+      >
+        <i class="bi bi-google me-2" aria-hidden="true" /> Sign in with Google
+      </button>
+
       <p class="text-center mb-0">
         Don't have an account? <router-link to="/register">
           Register here
@@ -158,7 +213,8 @@ function handleLogin() {
       <p class="text-center text-muted small mb-0">
         <strong>Demo Accounts:</strong><br>
         Client: <code>sarah@example.com</code> / <code>Password1</code><br>
-        Counsellor: <code>dr.sharma@mindwell.org</code> / <code>Counsellor1</code>
+        Counsellor: <code>dr.sharma@mindwell.org</code> / <code>Counsellor1</code><br>
+        Admin: <code>admin@mindwell.org</code> / <code>Admin1</code>
       </p>
     </div>
   </div>

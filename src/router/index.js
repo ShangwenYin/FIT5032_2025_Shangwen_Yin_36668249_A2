@@ -7,6 +7,7 @@ const routes = [
   { path: '/register', name: 'register', component: () => import('@/views/RegisterView.vue'), meta: { guest: true } },
   { path: '/resources', name: 'resources', component: () => import('@/views/ResourcesView.vue') },
   { path: '/resources/:id', name: 'resource-detail', component: () => import('@/views/ResourceDetailView.vue'), props: true },
+  { path: '/map', name: 'map', component: () => import('@/views/MapView.vue') },
   { path: '/dashboard', name: 'dashboard', component: () => import('@/views/DashboardView.vue'), meta: { requiresAuth: true } },
   { path: '/appointments', name: 'appointments', component: () => import('@/views/AppointmentsView.vue'), meta: { requiresAuth: true } },
   { path: '/insights', name: 'insights', component: () => import('@/views/InsightsView.vue'), meta: { requiresAuth: true } },

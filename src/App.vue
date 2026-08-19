@@ -3,6 +3,8 @@ import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getCurrentUser, setCurrentUser } from '@/data'
 import { useOnline } from '@/composables/useOnline'
+import { signOut } from 'firebase/auth'
+import { auth } from '@/firebase'
 
 const router = useRouter()
 const route = useRoute()
@@ -13,7 +15,8 @@ watch(() => route.fullPath, () => {
   currentUser.value = getCurrentUser()
 })
 
-function logout() {
+async function logout() {
+  await signOut(auth).catch(() => {})
   setCurrentUser(null)
   currentUser.value = null
   router.push('/')
@@ -22,6 +25,12 @@ function logout() {
 
 <template>
   <div class="d-flex flex-column min-vh-100">
+    <!-- Skip link (BR E.3 accessibility) -->
+    <a
+      href="#main-content"
+      class="skip-link"
+    >Skip to main content</a>
+
     <!-- Crisis Banner -->
     <div class="crisis-banner">
       If you're in crisis, help is available &mdash;
@@ -39,7 +48,7 @@ function logout() {
       v-if="!isOnline"
       class="offline-banner"
     >
-      <i class="bi bi-wifi-off" /> You are offline &mdash; bookings will be queued and synced when you reconnect.
+      <i class="bi bi-wifi-off" aria-hidden="true" /> You are offline &mdash; bookings will be queued and synced when you reconnect.
     </div>
 
     <!-- Navbar -->
@@ -81,6 +90,14 @@ function logout() {
                 to="/resources"
               >
                 Resources
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link
+                class="nav-link"
+                to="/map"
+              >
+                Find Support
               </router-link>
             </li>
             <li
@@ -134,7 +151,7 @@ function logout() {
                 class="btn btn-danger btn-sm rounded-pill fw-bold"
                 href="tel:131114"
               >
-                <i class="bi bi-exclamation-triangle-fill" /> Crisis Help
+                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true" /> Crisis Help
               </a>
             </li>
             <template v-if="!currentUser">
@@ -164,7 +181,7 @@ function logout() {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  <i class="bi bi-person-circle" /> {{ currentUser.name }}
+                  <i class="bi bi-person-circle" aria-hidden="true" /> {{ currentUser.name }}
                   <span
                     class="badge ms-1"
                     :class="currentUser.role === 'counsellor' ? 'bg-success' : 'bg-primary'"
@@ -198,7 +215,11 @@ function logout() {
     </nav>
 
     <!-- Main -->
-    <main class="flex-grow-1">
+    <main
+      id="main-content"
+      class="flex-grow-1"
+      tabindex="-1"
+    >
       <router-view />
     </main>
 

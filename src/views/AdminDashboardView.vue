@@ -1,18 +1,18 @@
 <script setup>
 /**
  * MindWell Connect — Admin Dashboard
- * FIT5032 Assignment 3 — extended feature #3
- *
- * Overview for the charity's system admin: number of users, breakdown by
- * role, resources, and booked appointments.
+ * FIT5032 Assignment 3 — BR (D.3) interactive tables + BR (E.4) export
  */
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Chart from 'chart.js/auto'
+import DataTable from '@/components/DataTable.vue'
 import { getUsers, RESOURCES } from '@/data'
-import { fetchAppointments } from '@/data/firestore'
+import { fetchAppointments, fetchResources } from '@/data/firestore'
+import { exportToCSV } from '@/utils/export'
 
 const users = computed(() => getUsers())
 const appointments = ref([])
+const resources = ref([])
 const roleCanvas = ref(null)
 
 let roleChart = null
@@ -27,6 +27,42 @@ const roleBadge = role => (
   role === 'admin' ? 'bg-warning text-dark' :
   role === 'counsellor' ? 'bg-success' : 'bg-primary'
 )
+
+// ---- Table data (BR D.3) ----
+const userColumns = [
+  { key: 'name', label: 'Name' },
+  { key: 'email', label: 'Email' },
+  { key: 'role', label: 'Role' },
+  { key: 'saved', label: 'Saved' },
+  { key: 'ratings', label: 'Ratings' }
+]
+
+const resourceColumns = [
+  { key: 'title', label: 'Title' },
+  { key: 'category', label: 'Category' },
+  { key: 'topic', label: 'Topic' },
+  { key: 'type', label: 'Type' },
+  { key: 'avgRating', label: 'Avg Rating' },
+  { key: 'downloads', label: 'Views' }
+]
+
+const userRows = computed(() => users.value.map(u => ({
+  id: u.id,
+  name: u.name,
+  email: u.email,
+  role: u.role,
+  saved: (u.savedResources || []).length,
+  ratings: u.ratings ? Object.keys(u.ratings).length : 0
+})))
+
+// ---- Export (BR E.4) ----
+function exportUsers() {
+  exportToCSV(userRows.value, userColumns, 'mindwell-users.csv')
+}
+
+function exportResources() {
+  exportToCSV(resources.value, resourceColumns, 'mindwell-resources.csv')
+}
 
 function renderRoleChart() {
   if (!roleCanvas.value) return
@@ -46,6 +82,7 @@ function renderRoleChart() {
 
 onMounted(async () => {
   appointments.value = await fetchAppointments()
+  resources.value = await fetchResources()
   renderRoleChart()
 })
 
@@ -111,7 +148,7 @@ onUnmounted(() => { if (roleChart) roleChart.destroy() })
     </div>
 
     <div class="row g-4">
-      <div class="col-lg-5">
+      <div class="col-lg-4">
         <div class="card shadow-sm h-100">
           <div class="card-header bg-white fw-bold">
             User Composition
@@ -125,48 +162,49 @@ onUnmounted(() => { if (roleChart) roleChart.destroy() })
         </div>
       </div>
 
-      <div class="col-lg-7">
+      <div class="col-lg-8">
         <div class="card shadow-sm h-100">
-          <div class="card-header bg-white fw-bold">
-            All Users
+          <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+            <span>All Users</span>
+            <button
+              class="btn btn-mw-outline btn-sm"
+              @click="exportUsers"
+            >
+              <i class="bi bi-download" aria-hidden="true" /> Export CSV
+            </button>
           </div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table table-hover mb-0 align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Saved</th>
-                    <th>Ratings</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="u in users"
-                    :key="u.id"
-                  >
-                    <td class="fw-medium">
-                      {{ u.name }}
-                    </td>
-                    <td class="text-muted small">
-                      {{ u.email }}
-                    </td>
-                    <td>
-                      <span
-                        class="badge"
-                        :class="roleBadge(u.role)"
-                      >{{ u.role }}</span>
-                    </td>
-                    <td>{{ (u.savedResources || []).length }}</td>
-                    <td>{{ u.ratings ? Object.keys(u.ratings).length : 0 }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <div class="card-body">
+            <DataTable
+              :columns="userColumns"
+              :data="userRows"
+            >
+              <template #cell-role="{ value }">
+                <span
+                  class="badge"
+                  :class="roleBadge(value)"
+                >{{ value }}</span>
+              </template>
+            </DataTable>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+      <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+        <span>Resource Library (Firestore)</span>
+        <button
+          class="btn btn-mw-outline btn-sm"
+          @click="exportResources"
+        >
+          <i class="bi bi-download" aria-hidden="true" /> Export CSV
+        </button>
+      </div>
+      <div class="card-body">
+        <DataTable
+          :columns="resourceColumns"
+          :data="resources"
+        />
       </div>
     </div>
   </div>

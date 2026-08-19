@@ -1,6 +1,8 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '@/firebase'
 import { getUsers, saveUsers, setCurrentUser, isValidEmail, isStrongPassword } from '@/data'
 
 const router = useRouter()
@@ -21,15 +23,12 @@ function validate() {
   let valid = true
   errors.name = ''; errors.email = ''; errors.password = ''; errors.confirmPassword = ''
 
-  // BR B.1: Required field + length validation
   if (!form.name) { errors.name = 'Full name is required.'; valid = false }
   else if (form.name.length < 2) { errors.name = 'Name must be at least 2 characters.'; valid = false }
 
-  // BR B.1: Email format validation
   if (!form.email) { errors.email = 'Email is required.'; valid = false }
   else if (!isValidEmail(form.email)) { errors.email = 'Please enter a valid email address.'; valid = false }
 
-  // BR B.1: Password strength validation
   if (!form.password) { errors.password = 'Password is required.'; valid = false }
   else if (!isStrongPassword(form.password)) {
     errors.password = 'Password must be at least 8 characters with at least 1 letter and 1 number.'
@@ -42,32 +41,37 @@ function validate() {
   return valid
 }
 
-function handleRegister() {
+function authError(code) {
+  switch (code) {
+    case 'auth/email-already-in-use':
+      return 'An account with this email already exists.'
+    case 'auth/invalid-email':
+      return 'Please enter a valid email address.'
+    case 'auth/weak-password':
+      return 'Password is too weak. Use at least 8 characters with a letter and a number.'
+    default:
+      return code || 'Registration failed.'
+  }
+}
+
+async function handleRegister() {
   if (!validate()) return
   submitting.value = true
 
-  setTimeout(() => {
+  try {
+    // BR D.1: create the account in Firebase Auth
+    await createUserWithEmailAndPassword(auth, form.email, form.password)
+
     const users = getUsers()
-
-    // BR C.4: Check for duplicate email
-    if (users.find(u => u.email.toLowerCase() === form.email.toLowerCase())) {
-      errors.email = 'An account with this email already exists.'
-      toast('Registration failed. Email already in use.', 'error')
-      submitting.value = false
-      return
-    }
-
     const newUser = {
       id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
       name: form.name,
       email: form.email.toLowerCase(),
-      password: form.password,
       role: form.role,
       savedResources: [],
       ratings: {},
       ...(form.role === 'counsellor' ? { clients: [] } : {})
     }
-
     users.push(newUser)
     saveUsers(users)
 
@@ -76,8 +80,11 @@ function handleRegister() {
     setCurrentUser(safeUser)
     toast('Account created! Welcome, ' + safeUser.name + '.', 'success')
     setTimeout(() => router.push('/dashboard'), 500)
-    submitting.value = false
-  }, 500)
+  } catch (e) {
+    errors.email = authError(e.code)
+    toast('Registration failed. ' + authError(e.code), 'error')
+  }
+  submitting.value = false
 }
 </script>
 
@@ -198,7 +205,7 @@ function handleRegister() {
           </div>
         </div>
 
-        <!-- BR C.2: Role selection -->
+        <!-- Role selection -->
         <div class="mb-4">
           <label class="form-label">I am a...</label>
           <div class="d-flex gap-3">

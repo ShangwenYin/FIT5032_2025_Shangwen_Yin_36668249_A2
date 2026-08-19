@@ -112,3 +112,26 @@ body {
   .hero-section h1 { font-size: 1.8rem; }
   .auth-card { padding: 1.5rem; }
 }
+
+/* Accessibility (BR E.3 - WCAG 2.1 AA) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--mw-primary);
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  z-index: 1100;
+  border-radius: 0 0 8px 0;
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: 0;
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 3px solid var(--mw-primary);
+  outline-offset: 2px;
+}

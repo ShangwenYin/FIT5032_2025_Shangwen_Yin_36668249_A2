@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import { initialiseData } from './data'
 import { seedFirestore } from './data/firestore'
+import { seedAuthUsers, bindAuthState } from './data/auth'
 
 // Bootstrap CSS + Icons (BR A.2)
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -19,6 +20,10 @@ initialiseData()
 
 // Seed Firestore (resources + sample appointments) — fire and forget
 seedFirestore()
+
+// Seed demo accounts into Firebase Auth + keep session in sync (BR D.1)
+seedAuthUsers()
+bindAuthState()
 
 const app = createApp(App)
 app.use(router)
