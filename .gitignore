@@ -1,0 +1,14 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+
+# logs
+*.log
+firebase-debug.log
+
+# editor / tooling
+.playwright-mcp/
+.sisyphus/
+.DS_Store

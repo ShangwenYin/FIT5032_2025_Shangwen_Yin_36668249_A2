@@ -8,6 +8,9 @@ const routes = [
   { path: '/resources', name: 'resources', component: () => import('@/views/ResourcesView.vue') },
   { path: '/resources/:id', name: 'resource-detail', component: () => import('@/views/ResourceDetailView.vue'), props: true },
   { path: '/dashboard', name: 'dashboard', component: () => import('@/views/DashboardView.vue'), meta: { requiresAuth: true } },
+  { path: '/appointments', name: 'appointments', component: () => import('@/views/AppointmentsView.vue'), meta: { requiresAuth: true } },
+  { path: '/insights', name: 'insights', component: () => import('@/views/InsightsView.vue'), meta: { requiresAuth: true } },
+  { path: '/admin', name: 'admin', component: () => import('@/views/AdminDashboardView.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue') }
 ]
 
@@ -24,6 +27,8 @@ router.beforeEach((to, from, next) => {
   const user = getCurrentUser()
   if (to.meta.requiresAuth && !user) {
     next({ name: 'login', query: { redirect: to.fullPath } })
+  } else if (to.meta.requiresAdmin && (!user || user.role !== 'admin')) {
+    next({ name: 'dashboard' })
   } else if (to.meta.guest && user) {
     next({ name: 'dashboard' })
   } else {

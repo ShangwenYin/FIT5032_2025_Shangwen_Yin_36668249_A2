@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { initialiseData } from './data'
+import { seedFirestore } from './data/firestore'
 
 // Bootstrap CSS + Icons (BR A.2)
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -15,6 +16,9 @@ import './assets/main.css'
 
 // Initialise localStorage seed data
 initialiseData()
+
+// Seed Firestore (resources + sample appointments) — fire and forget
+seedFirestore()
 
 const app = createApp(App)
 app.use(router)

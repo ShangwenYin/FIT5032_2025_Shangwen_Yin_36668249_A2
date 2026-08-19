@@ -36,6 +36,11 @@ export const SEED_USERS = [
     password: 'Password1', role: 'client',
     savedResources: [3, 6],
     ratings: { 3: 4, 6: 5 }
+  },
+  {
+    id: 6, name: 'Alex Morgan', email: 'admin@mindwell.org',
+    password: 'Admin1', role: 'admin',
+    savedResources: [], ratings: {}
   }
 ]
 
@@ -165,6 +170,22 @@ export function initialiseData() {
     RESOURCES.forEach(r => { ratings[r.id] = [...r.ratings] })
     localStorage.setItem('mindwell_ratings', JSON.stringify(ratings))
   }
+  // BR: admin role — ensure an admin account always exists, even for
+  // returning users whose localStorage was seeded before the admin was added.
+  ensureAdminUser()
+}
+
+function ensureAdminUser() {
+  const users = getUsers()
+  if (!users.find(u => u.role === 'admin')) {
+    users.push({
+      id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 6,
+      name: 'Alex Morgan', email: 'admin@mindwell.org',
+      password: 'Admin1', role: 'admin',
+      savedResources: [], ratings: {}
+    })
+    saveUsers(users)
+  }
 }
 
 // ============================================================
@@ -210,4 +231,30 @@ export function isValidEmail(email) {
 
 export function isStrongPassword(password) {
   return password.length >= 8 && /[a-zA-Z]/.test(password) && /[0-9]/.test(password)
+}
+//these are for safty validations
+
+// ============================================================
+// Offline Features (BR: extended use of Local Storage)
+// ============================================================
+// Offline appointment queue: bookings made while offline are stored here
+// and synced to Firestore once the connection is restored.
+
+export function getOfflineQueue() {
+  return JSON.parse(localStorage.getItem('mindwell_offline_queue') || '[]')
+}
+
+export function addToOfflineQueue(appointment) {
+  const queue = getOfflineQueue()
+  queue.push(appointment)
+  localStorage.setItem('mindwell_offline_queue', JSON.stringify(queue))
+}
+
+export function removeFromOfflineQueue(id) {
+  const queue = getOfflineQueue().filter(a => a.id !== id)
+  localStorage.setItem('mindwell_offline_queue', JSON.stringify(queue))
+}
+
+export function clearOfflineQueue() {
+  localStorage.removeItem('mindwell_offline_queue')
 }

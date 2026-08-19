@@ -2,10 +2,12 @@
 import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getCurrentUser, setCurrentUser } from '@/data'
+import { useOnline } from '@/composables/useOnline'
 
 const router = useRouter()
 const route = useRoute()
 const currentUser = ref(getCurrentUser())
+const { isOnline } = useOnline()
 
 watch(() => route.fullPath, () => {
   currentUser.value = getCurrentUser()
@@ -30,6 +32,14 @@ function logout() {
         target="_blank"
         rel="noopener"
       >Crisis Chat</a>
+    </div>
+
+    <!-- Offline Banner (BR: online/offline detection) -->
+    <div
+      v-if="!isOnline"
+      class="offline-banner"
+    >
+      <i class="bi bi-wifi-off" /> You are offline &mdash; bookings will be queued and synced when you reconnect.
     </div>
 
     <!-- Navbar -->
@@ -82,6 +92,39 @@ function logout() {
                 to="/dashboard"
               >
                 Dashboard
+              </router-link>
+            </li>
+            <li
+              v-if="currentUser"
+              class="nav-item"
+            >
+              <router-link
+                class="nav-link"
+                to="/appointments"
+              >
+                Appointments
+              </router-link>
+            </li>
+            <li
+              v-if="currentUser"
+              class="nav-item"
+            >
+              <router-link
+                class="nav-link"
+                to="/insights"
+              >
+                Insights
+              </router-link>
+            </li>
+            <li
+              v-if="currentUser && currentUser.role === 'admin'"
+              class="nav-item"
+            >
+              <router-link
+                class="nav-link"
+                to="/admin"
+              >
+                Admin
               </router-link>
             </li>
           </ul>
