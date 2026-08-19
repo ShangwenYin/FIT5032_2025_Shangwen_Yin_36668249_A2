@@ -100,6 +100,14 @@ async function logout() {
                 Find Support
               </router-link>
             </li>
+            <li class="nav-item">
+              <router-link
+                class="nav-link"
+                to="/assessment"
+              >
+                Self-Assessment
+              </router-link>
+            </li>
             <li
               v-if="currentUser"
               class="nav-item"

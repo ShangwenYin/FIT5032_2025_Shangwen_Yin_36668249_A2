@@ -8,6 +8,7 @@ const routes = [
   { path: '/resources', name: 'resources', component: () => import('@/views/ResourcesView.vue') },
   { path: '/resources/:id', name: 'resource-detail', component: () => import('@/views/ResourceDetailView.vue'), props: true },
   { path: '/map', name: 'map', component: () => import('@/views/MapView.vue') },
+  { path: '/assessment', name: 'assessment', component: () => import('@/views/AssessmentView.vue') },
   { path: '/dashboard', name: 'dashboard', component: () => import('@/views/DashboardView.vue'), meta: { requiresAuth: true } },
   { path: '/appointments', name: 'appointments', component: () => import('@/views/AppointmentsView.vue'), meta: { requiresAuth: true } },
   { path: '/insights', name: 'insights', component: () => import('@/views/InsightsView.vue'), meta: { requiresAuth: true } },
