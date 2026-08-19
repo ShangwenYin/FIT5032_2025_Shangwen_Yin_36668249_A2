@@ -5,6 +5,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   base: '/FIT5032_2025_Shangwen_Yin_36668249_A2/',
+  server: {
+    host: '127.0.0.1'
+  },
   plugins: [
     vue(),
     VitePWA({

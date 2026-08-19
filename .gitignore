@@ -8,6 +8,9 @@ dist/
 *.log
 firebase-debug.log
 
+# env (EmailJS IDs)
+.env
+
 # editor / tooling
 .playwright-mcp/
 .sisyphus/

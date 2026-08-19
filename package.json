@@ -11,6 +11,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@fullcalendar/vue3": "^7.0.2",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",

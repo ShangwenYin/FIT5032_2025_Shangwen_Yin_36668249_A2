@@ -12,6 +12,7 @@ const routes = [
   { path: '/appointments', name: 'appointments', component: () => import('@/views/AppointmentsView.vue'), meta: { requiresAuth: true } },
   { path: '/insights', name: 'insights', component: () => import('@/views/InsightsView.vue'), meta: { requiresAuth: true } },
   { path: '/admin', name: 'admin', component: () => import('@/views/AdminDashboardView.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/email', name: 'email', component: () => import('@/views/SendEmailView.vue'), meta: { requiresAuth: true } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue') }
 ]
 

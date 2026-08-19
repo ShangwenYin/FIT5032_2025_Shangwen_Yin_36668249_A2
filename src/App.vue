@@ -134,6 +134,17 @@ async function logout() {
               </router-link>
             </li>
             <li
+              v-if="currentUser"
+              class="nav-item"
+            >
+              <router-link
+                class="nav-link"
+                to="/email"
+              >
+                Send Email
+              </router-link>
+            </li>
+            <li
               v-if="currentUser && currentUser.role === 'admin'"
               class="nav-item"
             >
