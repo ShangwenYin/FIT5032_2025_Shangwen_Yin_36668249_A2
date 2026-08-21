@@ -283,6 +283,44 @@ const user = computed(() => getCurrentUser())
     </template>
 
     <div
+      v-else-if="user"
+      class="container py-5 text-center"
+    >
+      <div class="display-4 mb-3">
+        &#x1F44B;
+      </div>
+      <h4>Welcome, {{ user.name }}!</h4>
+      <p class="text-muted">
+        Your account has the 'admin' role.
+      </p>
+      <router-link
+        to="/admin"
+        class="btn btn-mw"
+      >
+        Go to Admin Dashboard
+      </router-link>
+    </div>
+
+    <div
+      v-else-if="user"
+      class="container py-5 text-center"
+    >
+      <div class="display-4 mb-3">
+        &#x1F44B;
+      </div>
+      <h4>Welcome, {{ user.name }}!</h4>
+      <p class="text-muted">
+        Your account has the 'admin' role.
+      </p>
+      <router-link
+        to="/admin"
+        class="btn btn-mw"
+      >
+        Go to Admin Dashboard
+      </router-link>
+    </div>
+
+    <div
       v-else
       class="container py-5 text-center"
     >

@@ -71,6 +71,7 @@ function syncLocalProfile(email, displayName) {
   // eslint-disable-next-line no-unused-vars
   const { password: _pw, ...safeUser } = profile
   setCurrentUser(safeUser)
+  return safeUser
 }
 
 async function handleLogin() {
@@ -78,9 +79,9 @@ async function handleLogin() {
   submitting.value = true
   try {
     const cred = await signInWithEmailAndPassword(auth, form.email, form.password)
-    syncLocalProfile(cred.user.email, cred.user.displayName)
+    const profile = syncLocalProfile(cred.user.email, cred.user.displayName)
     toast('Login successful! Welcome back.', 'success')
-    const redirect = route.query.redirect || '/dashboard'
+    const redirect = route.query.redirect || (profile.role === 'admin' ? '/admin' : '/dashboard')
     setTimeout(() => router.push(redirect), 500)
   } catch (e) {
     const msg = authError(e.code)
@@ -95,9 +96,10 @@ async function handleGoogle() {
   try {
     const provider = new GoogleAuthProvider()
     const cred = await signInWithPopup(auth, provider)
-    syncLocalProfile(cred.user.email, cred.user.displayName)
+    const profile = syncLocalProfile(cred.user.email, cred.user.displayName)
     toast('Login successful! Welcome back.', 'success')
-    setTimeout(() => router.push('/dashboard'), 500)
+    const redirect = profile.role === 'admin' ? '/admin' : '/dashboard'
+    setTimeout(() => router.push(redirect), 500)
   } catch (e) {
     toast('Google login failed: ' + authError(e.code), 'error')
   }
