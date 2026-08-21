@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/FIT5032_2025_Shangwen_Yin_36668249_A2/sw.js', { scope: '/FIT5032_2025_Shangwen_Yin_36668249_A2/' })})}
